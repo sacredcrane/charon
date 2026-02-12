@@ -1,0 +1,51 @@
+name: golangci-lint
+
+on:
+  pull_request:
+  push:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: golangci-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint (go ${{ matrix.go }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ["1.26.x"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          cache: true
+
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.9.0
+
+      - name: Verify golangci-lint config
+        run: golangci-lint --config=.golangci.yaml config verify
+
+      - name: golangci-lint (run)
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.9.0
+          args: --config=.golangci.yaml ./...
+
+      - name: golangci-lint fmt (check)
+        run: |
+          golangci-lint --config=.golangci.yaml fmt ./...
+          git diff --exit-code

@@ -1,0 +1,143 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+  issues-exit-code: 1
+  allow-parallel-runners: true
+
+output:
+  formats:
+    text:
+      path: stdout
+      colors: true
+      print-linter-name: true
+      print-issued-lines: true
+  sort-order:
+    - linter
+    - file
+  show-stats: false
+
+linters:
+  default: none
+  enable:
+    - govet
+    - staticcheck
+    - errcheck
+    - ineffassign
+    - revive
+    - unconvert
+    - unparam
+    - unused
+    - misspell
+    - prealloc
+    - whitespace
+    - bodyclose
+    - gocyclo
+    - dupl
+    - nestif
+    - funlen
+    - gosec
+    - nilerr
+    - nilnil
+    - errorlint
+    - asciicheck
+    - bidichk
+    - gocritic
+    - durationcheck
+    - makezero
+    - reassign
+    - tagliatelle
+
+  settings:
+    govet:
+      settings:
+        printf:
+          funcs:
+            - (github.com/sirupsen/logrus.FieldLogger).Printf
+            - (github.com/sirupsen/logrus.FieldLogger).Infof
+            - (github.com/sirupsen/logrus.FieldLogger).Warnf
+            - (github.com/sirupsen/logrus.FieldLogger).Errorf
+
+    staticcheck:
+      checks: ["all"]
+
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-keys-type
+        - name: context-as-argument
+        - name: error-strings
+        - name: errorf
+        - name: if-return
+        - name: increment-decrement
+        - name: receiver-naming
+        - name: time-naming
+        - name: var-naming
+          arguments:
+            - ["ID", "URL", "HTTP", "JSON", "SQL", "UUID"]
+        - name: unexported-return
+        - name: unnecessary-stmt
+        - name: superfluous-else
+
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+      exclude-functions:
+        - (io.Closer).Close
+        - (*bytes.Buffer).WriteString
+
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - performance
+        - style
+      disabled-checks:
+        - unnamedResult
+        - hugeParam
+
+    gosec:
+      severity: medium
+      confidence: medium
+      excludes:
+        - G104
+
+    misspell:
+      locale: US
+
+    unparam:
+      check-exported: false
+
+    prealloc:
+      simple: true
+      range-loops: true
+      for-loops: true
+
+    tagliatelle:
+      case:
+        rules:
+          json: snake
+          yaml: snake
+          xml: snake
+          bson: snake
+
+formatters:
+  enable:
+    - gofmt
+    - gofumpt
+    - gci
+
+  settings:
+    gofumpt:
+      extra-rules: true
+
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/sacredcrane/charon)
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  
